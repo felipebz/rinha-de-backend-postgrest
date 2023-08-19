@@ -1,0 +1,64 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    command: ["-c", "log_statement=none",
+              "-c", "log_min_messages=FATAL",
+              "-c", "max_connections=500",
+              "-c", "wal_level=minimal",
+              "-c", "max_wal_senders=0"]
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1GB
+
+  server:
+    image: postgrest/postgrest
+    environment:
+      PGRST_DB_URI: postgres://app_user:password@db:5432/app_db
+      PGRST_DB_ANON_ROLE: web_anon
+      PGRST_DB_POOL: 200
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 250MB
+
+  server2:
+    image: postgrest/postgrest
+    environment:
+      PGRST_DB_URI: postgres://app_user:password@db:5432/app_db
+      PGRST_DB_ANON_ROLE: web_anon
+      PGRST_DB_POOL: 200
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 250MB
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "9999:9999"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - server
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 50MB
