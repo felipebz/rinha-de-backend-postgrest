@@ -78,15 +78,15 @@ DECLARE
     retorno pessoa_view;
 BEGIN
     SELECT *
-      INTO STRICT retorno
+      INTO retorno
       FROM pessoa_view
      WHERE pessoa_view.id = pessoas.id;
 
-    RETURN retorno;
-EXCEPTION
-    WHEN no_data_found THEN
+    IF NOT FOUND THEN
         PERFORM set_config('response.status', '404', TRUE);
-        RETURN NULL;
+    END IF;
+
+    RETURN retorno;
 END
 $$ LANGUAGE plpgsql;
 
