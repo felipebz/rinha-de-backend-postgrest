@@ -66,7 +66,7 @@ BEGIN
     END;
 
     PERFORM set_config('response.status', '201', TRUE);
-    PERFORM set_config('response.headers', '[{"Location": "/pessoas?id='||id|| '"}]', TRUE);
+    PERFORM set_config('response.headers', '[{"Location": "/pessoas/'||id||'"}]', TRUE);
 END
 $$ LANGUAGE plpgsql;
 
