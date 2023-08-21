@@ -45,8 +45,7 @@ BEGIN
     stack := $1 -> 'stack';
     FOR item_stack IN SELECT * FROM jsonb_array_elements(stack) LOOP
         IF (jsonb_typeof(item_stack) <> 'string') THEN
-            PERFORM
-                set_config('response.status', '400', TRUE);
+            PERFORM set_config('response.status', '400', TRUE);
             RETURN;
         END IF;
     END LOOP;
@@ -95,7 +94,11 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION pessoas(t varchar)
     RETURNS SETOF pessoa_view AS
 $$
-SELECT pessoa.id, pessoa.apelido, pessoa.nome, pessoa.nascimento, pessoa.stack
+SELECT pessoa.id,
+       pessoa.apelido,
+       pessoa.nome,
+       pessoa.nascimento,
+       pessoa.stack
   FROM pessoa
  WHERE pessoa.dados_pesquisa ILIKE '%'||t||'%'
  LIMIT 50
@@ -117,7 +120,7 @@ CREATE OR REPLACE FUNCTION "contagem-pessoas"()
     RETURNS numeric AS
 $$
 SELECT count(1)
-FROM pessoa
+  FROM pessoa
 $$ LANGUAGE sql;
 
 
